@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Effects Application</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Image Effects Application</h1>
+        <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="upload-section">
+                <label for="image">Upload Image:</label>
+                <input type="file" name="image" id="image" required>
+            </div>
+            <div class="effect-section">
+                <label for="effect">Select Effect:</label>
+                <select name="effect" id="effect" required>
+                    <option value="Sketch">Sketch</option>
+                    <option value="Pencil">Pencil</option>
+                    <option value="Pastel">Pastel</option>
+                    <option value="Crayon">Crayon</option>
+                    <option value="Paper">Paper</option>
+                    <option value="Paris">Paris</option>
+                    <option value="Santorini">Santorini</option>
+                    <option value="Venice">Venice</option>
+                    <option value="Paint">Paint</option>
+                </select>
+            </div>
+            <button type="submit">Apply Effect</button>
+        </form>
+
+        <div id="result-section" class="result-section" style="display:none;">
+            <div class="split-view">
+                <div class="original">
+                    <h2>Original Image</h2>
+                    <img id="input-image" src="#" alt="Original Image">
+                </div>
+                <div class="generated">
+                    <h2>Generated Image</h2>
+                    <img id="output-image" src="#" alt="Processed Image">
+                    <a id="download-link" href="#" download="processed_image.jpg">Download Image</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultSection = document.getElementById('result-section');
+        const inputImage = document.getElementById('input-image');
+        const outputImage = document.getElementById('output-image');
+        const downloadLink = document.getElementById('download-link');
+
+        form.onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const fileInput = document.getElementById('image');
+
+            // Display original image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                inputImage.src = e.target.result;
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                outputImage.src = url;
+                downloadLink.href = url;
+                resultSection.style.display = 'block';
+            } else {
+                alert('Error processing image');
+            }
+        };
+    </script>
+</body>
+</html>
